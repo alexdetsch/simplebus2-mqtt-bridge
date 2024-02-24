@@ -49,6 +49,9 @@ unsigned long releasedTime = 0;
 //
 // Call Addrress from the intercom
 
+// activate function to be able to call your neighbors; comment out to deactivate
+// #define EVIL_NEIGHBOR
+
 // Hardware pin definition
 #define LEDPIN 4
 #define INTERCOM_READ_PIN 2
@@ -610,14 +613,14 @@ void callback(char *topic, byte *message, unsigned int length) {
     Serial.println();
 
     if (String(topic) == "SimpleBus/OpenDoor") {
-        Serial.println("OPENING the door");
+        Serial.println("Opening the door");
         if (messageTemp == String("ON")) {
-            Serial.print("OPENEING the door ");
             writeMessageToIntercom(MSG_OPEN_DOOR, mySettings.intercomAddress);
         }
     }
+
     if (String(topic) == "SimpleBus/SetRingToOpenTime") {
-        if (isNumeric(messageTemp)) {
+        Serial.println("Setting Ring-to-Open-Time") if (isNumeric(messageTemp)) {
             int rtoTime = messageTemp.toInt();
             // rto maximum time 24 hours, security feature
             if (rtoTime <= 1440 && rtoTime >= 1) {
@@ -629,13 +632,15 @@ void callback(char *topic, byte *message, unsigned int length) {
                     ringToOpenMillis = 1 * 60 * 1000;
                 }
             }
-        } else {
+        }
+        else {
             ringToOpenMillis = 45 * 60 * 1000;
         }
         // Change minutes to millis
     }
+
     if (String(topic) == "SimpleBus/RingToOpen") {
-        if (isNumeric(messageTemp)) {
+        Serial.println("Activate Ring-to-Open") if (isNumeric(messageTemp)) {
             int rtoTime = messageTemp.toInt();
             // rto maximum time 24 hours, security feature
             if (rtoTime <= 1440 && rtoTime >= 1) {
@@ -660,7 +665,7 @@ void callback(char *topic, byte *message, unsigned int length) {
     }
 
     if (String(topic) == "SimpleBus/ActivateConfigPortal") {
-        unsigned long timeoutTime = 120;  // default to 2 minutes
+        Serial.println("Activating Config-Portal") unsigned long timeoutTime = 120;  // default to 2 minutes
         if (isNumeric(messageTemp)) {
             timeoutTime = messageTemp.toInt();
             // timeout maximum time 24 hours, security feature
@@ -675,6 +680,15 @@ void callback(char *topic, byte *message, unsigned int length) {
             reconnect();
         }
     }
+
+#IFDEF EVIL_NEIGHBOR
+    if (String(topic) == "SimpleBus/CallNeighbor") {
+        Serial.println("Calling Neighbor") if (isNumeric(messageTemp)) {
+            unsigned int neighbor_address = messageTemp.toInt();
+            writeMessageToIntercom(MSG_CALL_INTERCOM, neighbor_address);
+        }
+    }
+#ENDIF
 }
 
 void reconnect() {
@@ -691,6 +705,9 @@ void reconnect() {
             client.subscribe("SimpleBus/RingToOpen");
             client.subscribe("SimpleBus/SetRingToOpenTime");
             client.subscribe("SimpleBus/ActivateConfigPortal");
+#IFDEF EVIL_NEIGHBOR
+            client.subscribe("SimpleBus/CallNeighbor");
+#ENDIF
             client.publish("SimpleBus", "subscribed");
         } else {
             cnt++;
@@ -718,6 +735,9 @@ void connectmqtt() {
         client.subscribe("SimpleBus/RingToOpen");
         client.subscribe("SimpleBus/SetRingToOpenTime");
         client.subscribe("SimpleBus/ActivateConfigPortal");
+#IFDEF EVIL_NEIGHBOR
+        client.subscribe("SimpleBus/CallNeighbor");
+#ENDIF
     } else {
         reconnect();
     }
