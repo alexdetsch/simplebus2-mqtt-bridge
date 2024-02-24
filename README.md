@@ -1,12 +1,12 @@
 # Simplebus2 MQTT Bridge
 
 ### Table of contents
-[1. Overview](#Overview)  
-[2. Software](#Software)  
-[3. Hardware](#Hardware)  
-[4. Mechanics](#Mechanics)  
-[5. Disclaimer](#Disclaimer)  
-[6. Credits](#Credits) 
+[1. Overview](#Overview)
+[2. Software](#Software)
+[3. Hardware](#Hardware)
+[4. Mechanics](#Mechanics)
+[5. Disclaimer](#Disclaimer)
+[6. Credits](#Credits)
 
 ## Overview
 
@@ -55,9 +55,9 @@ The adress of the intercom can be teached by pressing the button for 3...4s. The
 
 Alternatively the choice of the intercom adress can be done in the web interface. Each intercom unit has its own 8-bits address, which is configured via an 8-way DIP switch during installation. See the interior of your Comelit intercom with the DIP switch in red and translate the bits to your corresponding decimal number, which is usually your appartement or floor number. In some intercoms the DIP-switch can be found on the back, in others you need to open the housing. The address DIP switch is marked S1 and follows LSB logic like in the following table:
 
- Switch No.| 1 | 2 | 3 | 4 |  5 |  6 |  7 |  8  |
- --------- |:-:|:-:|:-:|:-:|:--:|:--:|:--:|:---:|
- Value     | 1 | 2 | 4 | 8 | 16 | 32 | 64 | 128 |
+ | Switch No. |   1   |   2   |   3   |   4   |   5   |   6   |   7   |   8   |
+ | ---------- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+ | Value      |   1   |   2   |   4   |   8   |  16   |  32   |  64   |  128  |
 
 ![DIP switch](https://github.com/Elektroarzt/simplebus2-mqtt-bridge/assets/61664171/e777526b-f2ed-47c3-a666-8bb2cc70a9e0)
 
@@ -66,33 +66,34 @@ The above intercom for example is addressed to 12.
 ### MQTT data structure
 **Published topics**
 
- Topic                        | Values                 | Notes
- ---------------------------- |:----------------------:| ---------------------------------------------------
- SimpleBus/FloorDoor          | ON                     | bell rings on floor door of apartement
- SimpleBus/EntryDoor          | ON                     | bell rings on entry door of building
- SimpleBus/Reboot             | ON                     | bridge has booted and is listening
- SimpleBus/RingToOpenStatus   | ON / OFF               | 'ring to open' status is on or off
+ | Topic                      |  Values  | Notes                                  |
+ | -------------------------- | :------: | -------------------------------------- |
+ | SimpleBus/FloorDoor        |    ON    | bell rings on floor door of apartement |
+ | SimpleBus/EntryDoor        |    ON    | bell rings on entry door of building   |
+ | SimpleBus/Reboot           |    ON    | bridge has booted and is listening     |
+ | SimpleBus/RingToOpenStatus | ON / OFF | 'ring to open' status is on or off     |
 
 **Subscribed topics**
 
- Topic                        | Values                 | Notes
- ---------------------------- |:----------------------:| ---------------------------------------------------
- SimpleBus/OpenDoor           | ON                     | open the door
- SimpleBus/RingToOpen         | ON / OFF               | activate 'ring to open' (40 minutes default, automatically shut off after bell ring)
- SimpleBus/SetRingToOpenTime  | 1 ... 1440             | activate 'ring to open' for x minutes (max. 24hrs)
+ | Topic                       |   Values   | Notes                                                                                |
+ | --------------------------- | :--------: | ------------------------------------------------------------------------------------ |
+ | SimpleBus/OpenDoor          |     ON     | open the door                                                                        |
+ | SimpleBus/RingToOpen        |  ON / OFF  | activate 'ring to open' (40 minutes default, automatically shut off after bell ring) |
+ | SimpleBus/SetRingToOpenTime | 1 ... 1440 | activate 'ring to open' for x minutes (max. 24hrs)                                   |
 
 ### Dependencies
 The following components are required to build the firmware. Other versions may also work but are not tested.
 
- Component    | Version
- ------------ |:-------
- MultiButton  | 1.2.0
- Debounce     | 1.2.0
- EEPROM       | 2.0.0
- PubSubClient | 2.8
- WiFi         | 2.0.0
- WiFiManager  | 2.0.16-rc.2
- Wire         | 2.0.0
+ | Component    | Version     | Link                                             |
+ | ------------ | :---------- | ------------------------------------------------ |
+ | EEPROM       | 2.0.0       | default Arduino                                  |
+ | WiFi         | 2.0.0       | default Arduino                                  |
+ | Wire         | 2.0.0       | default Arduino                                  |
+ | MultiButton  | 1.2.0       | https://github.com/poelstra/arduino-multi-button |
+ | Debounce     | 1.2.0       | https://github.com/wkoch/Debounce                |
+ | PubSubClient | 2.8         | https://github.com/knolleary/pubsubclient        |
+ | WiFiManager  | 2.0.16-rc.2 | https://github.com/tzapu/WiFiManager             |
+
 
 ## Hardware
 
@@ -103,22 +104,22 @@ The electronics draw power from the bus voltage and require no additional power 
 ### Expansion pin header J2
 For future use this pin header can connect to a piggy-back. The M2.5 hole in the neighborhood can be used to secure a sandwich PCBA.
 
- Signal Name   | Pin  | Notes
- ------------- |:----:| --------------------------------------------------------------------------------------
- D6            | 1    | GPIO 21 of ESP32 (D6 of XIAO module pinout)
- 3V3           | 2    | directly connected to 3.3V plane
- D3            | 3    | GPIO 5 of ESP32 (D3 of XIAO module pinout, outputs PWM signal at boot, strapping pin)
- GND           | 4    | directly connected to GND plane
- 
+ | Signal Name |  Pin  | Notes                                                                                 |
+ | ----------- | :---: | ------------------------------------------------------------------------------------- |
+ | D6          |   1   | GPIO 21 of ESP32 (D6 of XIAO module pinout)                                           |
+ | 3V3         |   2   | directly connected to 3.3V plane                                                      |
+ | D3          |   3   | GPIO 5 of ESP32 (D3 of XIAO module pinout, outputs PWM signal at boot, strapping pin) |
+ | GND         |   4   | directly connected to GND plane                                                       |
+
 ### Debug pin header J3
 Meant for debugging, header can be populated optionally. The following signals can be measured against GND:
 
- Signal Name   | Pin  | Notes
- ------------- |:----:| ----------------------------------------------------------------------------
- D1            | 1    | voltage divider 1, reference voltage of OPV filter stage 1 ('gain' parameter)
- S2            | 2    | cleaned payload signal of Simplebus2
- D2            | 3    | voltage divider 2, reference voltage of comparator ('level' parameter)
- GND           | 4    | directly connected to GND plane
+ | Signal Name |  Pin  | Notes                                                                         |
+ | ----------- | :---: | ----------------------------------------------------------------------------- |
+ | D1          |   1   | voltage divider 1, reference voltage of OPV filter stage 1 ('gain' parameter) |
+ | S2          |   2   | cleaned payload signal of Simplebus2                                          |
+ | D2          |   3   | voltage divider 2, reference voltage of comparator ('level' parameter)        |
+ | GND         |   4   | directly connected to GND plane                                               |
 
 ### Filter
 In the schematics two filters can be found, one low pass (C5 and R5) and one high pass sallen key active filter with a gain of 2. Between those two filters there is signal amplifier which can be set individually to compensate for a long bus wire. The goal is to filter and amplify the incoming 25 kHz signal.
