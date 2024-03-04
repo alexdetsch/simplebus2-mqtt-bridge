@@ -224,7 +224,9 @@ void setupI2C(int i2cNumber) {
         }
     }
     Wire.begin(sdaPin, sclPin, I2C_FREQ);
-    Wire.beginTransmission(0xFF);
+    Wire.write(0b111111111);
+    Wire.endTransmission(false);
+    Wire.write(0);
     Wire.endTransmission();
 }
 
@@ -237,6 +239,7 @@ void setPotValue(byte byteValue) {
     Wire.beginTransmission(MCP4017_I2C_ADDRESS);
     Wire.write(byteValue);
     Wire.endTransmission();
+    Wire.end();
 }
 
 void setPotPercentage(float percentage) {
